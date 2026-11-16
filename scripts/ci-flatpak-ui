@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# The fixture changes XDG_DATA_HOME for the app, not the host Flatpak store.
+export FLATPAK_USER_DIR="${FLATPAK_USER_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/flatpak}"
 bundle="$(realpath "$1")"
 artifacts="$(realpath -m "$2")"
 mkdir -p "$artifacts"
