@@ -121,7 +121,7 @@ jobs:
     timeout-minutes: 60
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08
-      options: --privileged
+      options: --privileged --volume /var/lib/flatpak
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - name: Validate locked crate sources

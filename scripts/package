@@ -6,11 +6,12 @@ if [[ ! -x "$binary" ]]; then echo 'No release binary found.' >&2; exit 1; fi
 version="$($binary --version | awk '{print $2}')"
 arch="$(uname -m)"
 name="aster-$version-linux-$arch"
-mkdir -p "$root/dist/$name"/{assets,packaging,scripts}
+mkdir -p "$root/dist/$name"/{assets,packaging,scripts,docs}
 install -m755 "$binary" "$root/dist/$name/aster"
 install -m644 "$root/assets/aster.svg" "$root/dist/$name/assets/aster.svg"
 install -m644 "$root/packaging/aster.desktop" "$root/dist/$name/packaging/aster.desktop"
 install -m644 "$root/README.md" "$root/LICENSE" "$root/RELEASE.md" "$root/PERFORMANCE-AUDIT.md" "$root/dist/$name/"
+install -m644 "$root/docs/"*.md "$root/dist/$name/docs/"
 install -m755 "$root/scripts/install-local" "$root/dist/$name/scripts/install-local"
 tar -C "$root/dist" -czf "$root/dist/$name.tar.gz" "$name"
 (cd "$root/dist" && sha256sum "$name.tar.gz" > "$name.tar.gz.sha256")
