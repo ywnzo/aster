@@ -56,7 +56,7 @@ of the host's newer glibc:
 This build path is included but has not yet been executed. The current binary
 is built on Arch and should first be tested on the user's Arch machines.
 
-Video is rendered directly into Aster's existing window; no external player process or second window is launched. Stop returns to the same detail/library view. Fullscreen applies to the Aster window. On Debian, building requires `libmpv-dev` and running requires `libmpv2`. Hardware decoding uses a copy-back path for compatibility with the shared OpenGL context; direct surface interop and device-specific HDR/passthrough still require hardware validation.
+Video is rendered directly into Aster's existing window; no external player process or second window is launched. Stop returns to the same detail/library view. Fullscreen applies to the Aster window. On Debian, building requires `libmpv-dev` and running requires `libmpv2`. Hardware decoding imports video surfaces directly where supported, with automatic fallback. Intel UHD 630 direct VAAPI rendering has been verified; device-specific HDR/passthrough still require hardware validation.
 
 ## Controls
 
@@ -187,3 +187,11 @@ Chapter boundaries appear as small ticks on the playback timeline. Clicking a ti
 Press Y during playback (C on a keyboard) or activate the chapter-list button to open Chapters. Use Up/Down and A to jump; playback retains its paused/playing state. X / Start closes the menu, while B stops playback and returns as usual. Titles with no chapter metadata show a brief notice instead of an empty picker.
 
 Rendering sleeps when views are idle and wakes on input, asynchronous results and video frames. See [PERFORMANCE-AUDIT.md](PERFORMANCE-AUDIT.md) for the whole-app media-center audit and reproducible benchmark instructions. Hardware decoding needs the GPU vendor's video driver in addition to Mesa; Intel UHD 630 uses `intel-media-driver` and `intel-gmmlib`.
+
+## Automated builds and downloads
+
+[GitHub Actions](https://github.com/ywnzo/aster/actions/workflows/linux.yml) runs formatting, strict Clippy, Rust tests and embedded OpenGL playback checks on every main-branch push and pull request. Tests use synthetic media under Xvfb/Mesa, never a real server. Each successful run includes a Linux x86_64 archive and SHA256 checksum as an Actions artifact.
+
+Push a tag matching Cargo.toml (`v` followed by the exact package version) to publish a [GitHub Release](https://github.com/ywnzo/aster/releases) after all checks pass. Versions containing a hyphen become prereleases. Release downloads are built on Ubuntu 24.04 and require glibc 2.39+, `libmpv.so.2`, libudev and OpenGL; install the appropriate vendor video driver for hardware decoding. These archives do not bundle a GPU driver or libmpv. The workflow can also be run manually for a build without publishing a release.
+
+After extracting a download, verify it using `sha256sum --check aster-*.tar.gz.sha256` from the directory containing the archive and checksum, then run `scripts/install-local` from the extracted directory. The desktop launcher uses the transparent `aster-star` icon name to avoid older KDE icon-cache entries.

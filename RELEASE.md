@@ -1,5 +1,10 @@
 # Release status and remaining product work
 
+## 0.1.0-alpha.27 — CI releases and desktop icon refresh
+
+- Test formatting, Clippy, all Rust tests and both embedded player preview modes on GitHub Actions. Publish checksummed Linux x86_64 downloads after matching version tags pass.
+- Give the transparent white-star desktop icon a fresh icon name and refresh KDE desktop services during installation to avoid stale icon caches.
+
 ## 0.1.0-alpha.26 — transparent star icon
 
 - Remove the app icon background and border. Use the same white star on transparency for the launcher, window icon and header.

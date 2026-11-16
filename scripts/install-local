@@ -9,7 +9,9 @@ if [[ ! -x "$binary" ]]; then
 fi
 install_root="${ASTER_INSTALL_PREFIX:-$HOME/.local}"
 install -Dm755 "$binary" "$install_root/bin/aster"
-install -Dm644 "$root/assets/aster.svg" "$install_root/share/icons/hicolor/scalable/apps/aster.svg"
+install -Dm644 "$root/assets/aster.svg" "$install_root/share/icons/hicolor/scalable/apps/aster-star.svg"
 install -Dm644 "$root/packaging/aster.desktop" "$install_root/share/applications/aster.desktop"
+touch "$install_root/share/icons/hicolor"
+if command -v kbuildsycoca6 >/dev/null && [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then kbuildsycoca6 --noincremental >/dev/null 2>&1 || true; fi
 if command -v update-desktop-database >/dev/null; then update-desktop-database "$install_root/share/applications"; fi
 printf 'Installed Aster for your user. Launch: %s --windowed\n' "$install_root/bin/aster"
