@@ -1,0 +1,23 @@
+[package]
+name = "aster"
+version = "0.1.0-alpha.26"
+edition = "2024"
+description = "A controller-first Jellyfin client for the living room"
+license = "MIT"
+rust-version = "1.88"
+
+[dependencies]
+eframe = { version = "0.33", default-features = false, features = ["default_fonts", "glow", "wayland", "x11"] }
+egui_extras = { version = "0.33", features = ["http", "image"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp"] }
+gilrs = "0.11"
+raw-window-handle = "0.6"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+url = "2"
+uuid = { version = "1", features = ["v4"] }
+
+[profile.release]
+lto = "thin"
+strip = true

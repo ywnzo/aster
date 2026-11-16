@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+docker --host unix:///run/kiri/docker.sock info >/dev/null
+mkdir -p "$root/dist/kiri"
+docker --host unix:///run/kiri/docker.sock build --target export --output "type=local,dest=$root/dist/kiri" "$root"
+printf 'Kiri-built binary: %s/dist/kiri/aster\n' "$root"

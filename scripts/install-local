@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+binary="${1:-$root/aster}"
+if [[ $# -eq 0 && ! -x "$binary" ]]; then binary="$root/target/release/aster"; fi
+if [[ ! -x "$binary" ]]; then
+  echo 'Build first with cargo build --locked --release, or pass a binary path.' >&2
+  exit 1
+fi
+install_root="${ASTER_INSTALL_PREFIX:-$HOME/.local}"
+install -Dm755 "$binary" "$install_root/bin/aster"
+install -Dm644 "$root/assets/aster.svg" "$install_root/share/icons/hicolor/scalable/apps/aster.svg"
+install -Dm644 "$root/packaging/aster.desktop" "$install_root/share/applications/aster.desktop"
+if command -v update-desktop-database >/dev/null; then update-desktop-database "$install_root/share/applications"; fi
+printf 'Installed Aster for your user. Launch: %s --windowed\n' "$install_root/bin/aster"
