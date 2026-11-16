@@ -1,9 +1,9 @@
 <p align="center"><img src="assets/aster-mark.svg" width="88" alt="Aster"></p>
 <h1 align="center">Aster</h1>
-<p align="center">Your Jellyfin library. Built for the sofa.</p>
+<p align="center">A Jellyfin client for Linux with controller support.</p>
 <p align="center"><a href="https://github.com/ywnzo/aster/releases">Download</a> · <a href="#controls">Controls</a> · <a href="docs/DEVELOPMENT.md">Development</a> · <a href="https://github.com/ywnzo/aster/issues">Report a bug</a></p>
 
-Aster is a native Linux Jellyfin client with a controller-first interface. Browse your movies and shows, pick up where you left off, and watch without leaving the app.
+Browse movies and shows, resume playback, and watch in the same window. Aster works with a gamepad, keyboard, or mouse.
 
 **Aster is in alpha.** Expect rough edges and report problems through [GitHub Issues](https://github.com/ywnzo/aster/issues).
 

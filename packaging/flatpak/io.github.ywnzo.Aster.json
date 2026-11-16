@@ -165,7 +165,8 @@
         "append-path": "/usr/lib/sdk/rust-stable/bin",
         "env": {
           "CARGO_HOME": "/run/build/aster/cargo-home",
-          "CARGO_BUILD_JOBS": "2"
+          "CARGO_BUILD_JOBS": "2",
+          "RUSTFLAGS": "-L native=/app/lib"
         }
       },
       "build-commands": [
