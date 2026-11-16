@@ -1,5 +1,10 @@
 # Release status and remaining product work
 
+## 0.1.0-alpha.30 — Flatpak packaging
+
+- Add a source-built Flatpak bundle with libmpv, Lua playback controls and keyring support. Export the white star icon under the Flatpak application ID.
+- Rewrite the README around installation, connection and controls; move contributor and packaging details into dedicated documentation.
+
 ## 0.1.0-alpha.29 — complete virtual desktop checks
 
 - Run graphical CI tests with an isolated PulseAudio null sink and an Openbox window manager, exercising audio-track changes, resizing and fullscreen without physical devices.

@@ -1,0 +1,188 @@
+{
+  "app-id": "io.github.ywnzo.Aster",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "26.08",
+  "sdk": "org.freedesktop.Sdk",
+  "sdk-extensions": [
+    "org.freedesktop.Sdk.Extension.rust-stable"
+  ],
+  "command": "aster",
+  "finish-args": [
+    "--share=network",
+    "--share=ipc",
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--socket=pulseaudio",
+    "--device=dri",
+    "--device=input",
+    "--filesystem=/run/udev:ro",
+    "--talk-name=org.freedesktop.secrets"
+  ],
+  "cleanup": [
+    "/include",
+    "/lib/pkgconfig",
+    "/share/man",
+    "*.a",
+    "*.la"
+  ],
+  "modules": [
+    {
+      "name": "lua",
+      "buildsystem": "simple",
+      "build-commands": [
+        "make -j2 linux MYCFLAGS=-fPIC",
+        "make INSTALL_TOP=/app install",
+        "mkdir -p /app/lib/pkgconfig",
+        "printf 'prefix=/app\\nlibdir=${prefix}/lib\\nincludedir=${prefix}/include\\nName: Lua\\nDescription: Lua scripting\\nVersion: 5.1.5\\nLibs: -L${libdir} -llua -lm -ldl\\nCflags: -I${includedir}\\n' > /app/lib/pkgconfig/lua51.pc",
+        "install -Dm644 COPYRIGHT /app/share/licenses/lua/COPYRIGHT"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://www.lua.org/ftp/lua-5.1.5.tar.gz",
+          "sha256": "2640fc56a795f29d28ef15e13c34a47e223960b0240e8cb0a82d9b0738695333"
+        }
+      ]
+    },
+    {
+      "name": "libass",
+      "config-opts": [
+        "--disable-static"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://github.com/libass/libass/releases/download/0.17.5/libass-0.17.5.tar.xz",
+          "sha256": "2dca25c0e0c837ddf00b52011b3f82cac1e4ddd3ad018227806b0c2288864acc"
+        }
+      ]
+    },
+    {
+      "name": "libplacebo",
+      "buildsystem": "meson",
+      "config-opts": [
+        "-Dvulkan=disabled",
+        "-Dshaderc=disabled",
+        "-Dopengl=enabled",
+        "-Ddemos=false",
+        "-Dtests=false"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://github.com/haasn/libplacebo/archive/refs/tags/v7.349.0.tar.gz",
+          "sha256": "627e32439a0b3d2b90368ead7e919f470ee7446c87cc0f7841bbe319b23aa8b1"
+        },
+        {
+          "type": "archive",
+          "url": "https://github.com/Dav1dde/glad/archive/refs/tags/v2.0.8.tar.gz",
+          "sha256": "44f06f9195427c7017f5028d0894f57eb216b0a8f7c4eda7ce883732aeb2d0fc",
+          "dest": "3rdparty/glad"
+        }
+      ]
+    },
+    {
+      "name": "libmpv",
+      "buildsystem": "meson",
+      "config-opts": [
+        "-Dlibmpv=true",
+        "-Dcplayer=false",
+        "-Dbuild-date=false",
+        "-Dmanpage-build=disabled",
+        "-Dlua=lua51",
+        "-Dlibarchive=disabled",
+        "-Djavascript=disabled",
+        "-Duchardet=disabled",
+        "-Dalsa=disabled",
+        "-Dpulse=enabled",
+        "-Dgl=enabled",
+        "-Dplain-gl=enabled",
+        "-Degl=enabled",
+        "-Degl-wayland=enabled",
+        "-Dvaapi=enabled",
+        "-Dvulkan=disabled"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://github.com/mpv-player/mpv/archive/refs/tags/v0.41.0.tar.gz",
+          "sha256": "ee21092a5ee427353392360929dc64645c54479aefdb5babc5cfbb5fad626209"
+        }
+      ]
+    },
+    {
+      "name": "libsecret",
+      "buildsystem": "meson",
+      "config-opts": [
+        "-Dmanpage=false",
+        "-Dvapi=false",
+        "-Dgtk_doc=false",
+        "-Dintrospection=false"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://download.gnome.org/sources/libsecret/0.21/libsecret-0.21.7.tar.xz",
+          "sha256": "6b452e4750590a2b5617adc40026f28d2f4903de15f1250e1d1c40bfd68ed55e"
+        }
+      ]
+    },
+    {
+      "name": "aster",
+      "buildsystem": "simple",
+      "build-options": {
+        "append-path": "/usr/lib/sdk/rust-stable/bin",
+        "env": {
+          "CARGO_HOME": "/run/build/aster/cargo-home",
+          "CARGO_BUILD_JOBS": "2"
+        }
+      },
+      "build-commands": [
+        "mkdir -p .cargo && cp cargo/config .cargo/config.toml",
+        "cargo build --frozen --offline --release",
+        "install -Dm755 target/release/aster /app/bin/aster",
+        "install -Dm644 packaging/io.github.ywnzo.Aster.desktop /app/share/applications/io.github.ywnzo.Aster.desktop",
+        "install -Dm644 packaging/io.github.ywnzo.Aster.metainfo.xml /app/share/metainfo/io.github.ywnzo.Aster.metainfo.xml",
+        "install -Dm644 assets/aster.svg /app/share/icons/hicolor/scalable/apps/io.github.ywnzo.Aster.svg",
+        "install -Dm644 assets/aster.png /app/share/icons/hicolor/256x256/apps/io.github.ywnzo.Aster.png",
+        "install -Dm644 LICENSE /app/share/licenses/aster/LICENSE"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "../../src",
+          "dest": "src"
+        },
+        {
+          "type": "dir",
+          "path": "../../assets",
+          "dest": "assets"
+        },
+        {
+          "type": "file",
+          "path": "../../Cargo.toml"
+        },
+        {
+          "type": "file",
+          "path": "../../Cargo.lock"
+        },
+        {
+          "type": "file",
+          "path": "../../LICENSE"
+        },
+        {
+          "type": "file",
+          "path": "io.github.ywnzo.Aster.desktop",
+          "dest": "packaging"
+        },
+        {
+          "type": "file",
+          "path": "io.github.ywnzo.Aster.metainfo.xml",
+          "dest": "packaging"
+        },
+        "cargo-sources.json"
+      ]
+    }
+  ],
+  "branch": "stable"
+}

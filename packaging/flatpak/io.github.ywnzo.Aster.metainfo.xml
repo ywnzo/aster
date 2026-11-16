@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.ywnzo.Aster</id>
+  <name>Aster</name>
+  <summary>Watch your Jellyfin library with a controller</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <developer id="io.github.ywnzo"><name>ywnzo</name></developer>
+  <description>
+    <p>Aster is a native Jellyfin client for Linux, designed for a television and gamepad. Browse your movies and shows, resume playback, and watch in the same window.</p>
+    <ul>
+      <li>Controller navigation with clear focus and an on-screen keyboard</li>
+      <li>Continue Watching, search, favorites, seasons and episodes</li>
+      <li>Hardware-accelerated playback, audio and subtitle menus, and chapters</li>
+      <li>Seek previews and next-episode autoplay</li>
+    </ul>
+    <p>A Jellyfin server is required. Aster is in alpha.</p>
+  </description>
+  <launchable type="desktop-id">io.github.ywnzo.Aster.desktop</launchable>
+  <url type="homepage">https://github.com/ywnzo/aster</url>
+  <url type="bugtracker">https://github.com/ywnzo/aster/issues</url>
+  <url type="vcs-browser">https://github.com/ywnzo/aster</url>
+  <content_rating type="oars-1.1"/>
+  <releases><release version="0.1.0-alpha.30" date="2026-11-16" type="development"/></releases>
+  <provides><binary>aster</binary></provides>
+</component>

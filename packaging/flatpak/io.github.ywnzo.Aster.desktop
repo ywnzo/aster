@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Aster
+Comment=Watch your Jellyfin library with a controller
+Exec=aster
+Icon=io.github.ywnzo.Aster
+Terminal=false
+Categories=AudioVideo;Video;Player;
+Keywords=Jellyfin;Movies;TV;Controller;
+StartupNotify=true

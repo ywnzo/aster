@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$root"
+scripts/flatpak-cargo-sources --check
+flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+mkdir -p dist
+flatpak-builder --user --force-clean --install-deps-from=flathub --state-dir=dist/flatpak-state --repo=dist/flatpak-repo dist/flatpak-build packaging/flatpak/io.github.ywnzo.Aster.json
+version="$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["package"]["version"])')"
+bundle="aster-$version-linux-$(uname -m).flatpak"
+flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo dist/flatpak-repo "dist/$bundle" io.github.ywnzo.Aster stable
+(cd dist && sha256sum "$bundle" > "$bundle.sha256")
+printf '%s\n' "$root/dist/$bundle"

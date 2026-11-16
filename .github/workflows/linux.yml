@@ -96,7 +96,7 @@ jobs:
       - name: Package and verify checksum
         run: |
           scripts/package target/release/aster
-          (cd dist && sha256sum --check *.tar.gz.sha256)
+          (cd dist && sha256sum --check *.sha256)
       - name: Upload Linux download
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
@@ -115,10 +115,75 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  flatpak:
+    name: Build Flatpak x86_64
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Validate locked crate sources
+        run: scripts/flatpak-cargo-sources --check
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@0fadf5d65cdfbdb9c94c7a2f3637c41206cc1a70 # v6
+        with:
+          manifest-path: packaging/flatpak/io.github.ywnzo.Aster.json
+          bundle: aster.flatpak
+          branch: stable
+          upload-artifact: false
+          cache-key: aster-freedesktop-26.08-${{ hashFiles('packaging/flatpak/io.github.ywnzo.Aster.json', 'packaging/flatpak/cargo-sources.json') }}
+      - name: Name bundle and checksum
+        run: |
+          version="$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["package"]["version"])')"
+          mkdir -p flatpak-download
+          mv aster.flatpak "flatpak-download/aster-$version-linux-x86_64.flatpak"
+          (cd flatpak-download && sha256sum *.flatpak > "aster-$version-linux-x86_64.flatpak.sha256")
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: aster-flatpak-x86_64
+          path: flatpak-download/*
+          if-no-files-found: error
+          retention-days: 14
+
+  flatpak-test:
+    name: Test installed Flatpak
+    needs: flatpak
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: aster-flatpak-x86_64
+          path: flatpak-download
+      - name: Install desktop test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends flatpak ffmpeg xvfb xauth x11-utils openbox pulseaudio pulseaudio-utils
+          (cd flatpak-download && sha256sum --check *.sha256)
+      - name: Start virtual audio sink
+        run: |
+          socket="$RUNNER_TEMP/aster-pulse.sock"
+          pulseaudio --daemonize=yes --exit-idle-time=-1 --log-target="file:$RUNNER_TEMP/aster-pulse.log" -n --load="module-native-protocol-unix socket=$socket auth-anonymous=1" --load="module-null-sink sink_name=aster_test"
+          echo "PULSE_SERVER=unix:$socket" >> "$GITHUB_ENV"
+      - name: Exercise installed sandboxed player
+        env:
+          ASTER_TEST_TRICKPLAY: '1'
+          ASTER_TEST_SERVER_CHAPTERS: '1'
+        run: scripts/ci-flatpak-ui flatpak-download/*.flatpak "$RUNNER_TEMP/aster-flatpak-ui"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: flatpak-test-diagnostics
+          path: ${{ runner.temp }}/aster-flatpak-ui
+          if-no-files-found: ignore
+          retention-days: 7
+
   release:
     name: Publish tagged Linux release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: test-build
+    needs: [test-build, flatpak-test]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -127,19 +192,20 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
-          name: aster-linux-x86_64
+          pattern: aster-*
+          merge-multiple: true
           path: release-assets
       - name: Create release with verified downloads
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          (cd release-assets && sha256sum --check *.tar.gz.sha256)
+          (cd release-assets && sha256sum --check *.sha256)
           python3 - <<'PY'
           import os, pathlib
           version = os.environ['GITHUB_REF_NAME'][1:]
           text = pathlib.Path('RELEASE.md').read_text()
           section = text.split('## ' + version + ' ', 1)[1].split('\n## ', 1)[0]
-          notes = '# Aster ' + version + ' ' + section + '\n\nLinux x86_64. Requires glibc 2.39+, libmpv.so.2, a working OpenGL driver and libudev. See README.md for installation and GPU video drivers.\n'
+          notes = '# Aster ' + version + ' ' + section + '\n\nLinux x86_64. Flatpak bundles playback libraries; native archives require glibc 2.39+, libmpv.so.2, OpenGL and libudev. See README.md for installation.\n'
           pathlib.Path('release-notes.md').write_text(notes)
           PY
           flags=()

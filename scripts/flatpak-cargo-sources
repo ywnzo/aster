@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+"""Generate offline Flatpak crate sources directly from the checked-in lockfile."""
+import json
+import pathlib
+import sys
+import tomllib
+
+root = pathlib.Path(__file__).resolve().parents[1]
+sources = []
+for package in tomllib.loads((root / "Cargo.lock").read_text())["package"]:
+    if "source" not in package:
+        continue
+    if not package["source"].startswith("registry+"):
+        raise SystemExit("Non-registry dependencies need explicit Flatpak sources")
+    name, version, checksum = (package[k] for k in ("name", "version", "checksum"))
+    destination = f"cargo/vendor/{name}-{version}"
+    sources.extend([
+        {"type": "archive", "url": f"https://static.crates.io/crates/{name}/{name}-{version}.crate", "sha256": checksum, "dest": destination, "archive-type": "tar-gzip"},
+        {"type": "inline", "contents": json.dumps({"files": {}, "package": checksum}), "dest": destination, "dest-filename": ".cargo-checksum.json"},
+    ])
+sources.append({"type": "inline", "dest": "cargo", "dest-filename": "config", "contents": '[source.crates-io]\nreplace-with = "vendored-sources"\n[source.vendored-sources]\ndirectory = "cargo/vendor"\n'})
+output = root / "packaging/flatpak/cargo-sources.json"
+text = json.dumps(sources, indent=2) + "\n"
+if "--check" in sys.argv:
+    if not output.exists() or output.read_text() != text:
+        raise SystemExit("Flatpak crate sources are stale; run scripts/flatpak-cargo-sources")
+else:
+    output.write_text(text)

@@ -83,7 +83,7 @@ fn main() -> eframe::Result {
                         .into_rgba8();
                     egui_icon(image)
                 })
-                .with_app_id("aster")
+                .with_app_id(std::env::var("FLATPAK_ID").unwrap_or_else(|_| "aster".into()))
                 .with_active(std::env::var_os("ASTER_WINDOW_INACTIVE").is_none())
                 .with_transparent(true)
                 .with_inner_size(size)

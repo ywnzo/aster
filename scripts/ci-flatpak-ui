@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+bundle="$(realpath "$1")"
+artifacts="$(realpath -m "$2")"
+mkdir -p "$artifacts"
+flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak --user install --noninteractive -y "$bundle"
+flatpak run --user io.github.ywnzo.Aster --version
+export ASTER_TEST_SANDBOX_ROOT="$artifacts" ASTER_TEST_FLATPAK=1
+cat > "$artifacts/launch" <<'LAUNCH'
+#!/usr/bin/env bash
+set -euo pipefail
+exec flatpak run --user --filesystem="$ASTER_TEST_SANDBOX_ROOT" \
+  --env=XDG_CONFIG_HOME="$XDG_CONFIG_HOME" --env=XDG_DATA_HOME="$XDG_DATA_HOME" \
+  --env=ASTER_PREVIEW_DATA="$ASTER_PREVIEW_DATA" --env=ASTER_PREVIEW_ROUTE=detail \
+  --env=ASTER_DEV_BRIDGE="$ASTER_DEV_BRIDGE" --env=ASTER_DEV_FIXTURE_SERVER="$ASTER_DEV_FIXTURE_SERVER" \
+  --env=ASTER_WINDOW_INACTIVE=1 --env=ASTER_WINDOW_SIZE="$ASTER_WINDOW_SIZE" \
+  --env=LIBGL_ALWAYS_SOFTWARE=1 io.github.ywnzo.Aster "$@"
+LAUNCH
+chmod +x "$artifacts/launch"
+scripts/ci-ui "$artifacts/launch" "$artifacts"
