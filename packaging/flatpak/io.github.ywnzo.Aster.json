@@ -58,6 +58,31 @@
       ]
     },
     {
+      "name": "build-python-templates",
+      "buildsystem": "simple",
+      "build-commands": [
+        "mkdir -p /app/lib/aster-build-python",
+        "cp -r markupsafe/src/markupsafe jinja2/src/jinja2 /app/lib/aster-build-python/"
+      ],
+      "cleanup": [
+        "/lib/aster-build-python"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://files.pythonhosted.org/packages/7e/99/7690b6d4034fffd95959cbe0c02de8deb3098cc577c67bb6a24fe5d7caa7/markupsafe-3.0.3.tar.gz",
+          "sha256": "722695808f4b6457b320fdc131280796bdceb04ab50fe1795cd540799ebe1698",
+          "dest": "markupsafe"
+        },
+        {
+          "type": "archive",
+          "url": "https://files.pythonhosted.org/packages/df/bf/f7da0350254c0ed7c72f3e33cef02e048281fec7ecec5f032d4aac52226b/jinja2-3.1.6.tar.gz",
+          "sha256": "0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d",
+          "dest": "jinja2"
+        }
+      ]
+    },
+    {
       "name": "libplacebo",
       "buildsystem": "meson",
       "config-opts": [
@@ -65,7 +90,8 @@
         "-Dshaderc=disabled",
         "-Dopengl=enabled",
         "-Ddemos=false",
-        "-Dtests=false"
+        "-Dtests=false",
+        "-Dglslang=disabled"
       ],
       "sources": [
         {
@@ -79,7 +105,12 @@
           "sha256": "44f06f9195427c7017f5028d0894f57eb216b0a8f7c4eda7ce883732aeb2d0fc",
           "dest": "3rdparty/glad"
         }
-      ]
+      ],
+      "build-options": {
+        "env": {
+          "PYTHONPATH": "/app/lib/aster-build-python"
+        }
+      }
     },
     {
       "name": "libmpv",
