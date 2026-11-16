@@ -1,6 +1,6 @@
 [package]
 name = "aster"
-version = "0.1.0-alpha.27"
+version = "0.1.0-alpha.28"
 edition = "2024"
 description = "A controller-first Jellyfin client for the living room"
 license = "MIT"

@@ -1,5 +1,10 @@
 # Release status and remaining product work
 
+## 0.1.0-alpha.28 — hosted X11 test environment
+
+- Include the X11 keyboard runtime required by winit on headless Linux runners. Cache Rust dependencies and build outputs for subsequent CI runs.
+- Includes the chapter picker, whole-app performance improvements and transparent desktop star icon from previous alphas.
+
 ## 0.1.0-alpha.27 — CI releases and desktop icon refresh
 
 - Test formatting, Clippy, all Rust tests and both embedded player preview modes on GitHub Actions. Publish checksummed Linux x86_64 downloads after matching version tags pass.
