@@ -81,7 +81,7 @@ def capture(name):
   time.sleep(.05)
  raise AssertionError('Screenshot did not finish: '+name)
 try:
- d=wait(lambda d:d.get('ready') and d.get('embedded') and d.get('hero'),'libmpv startup');print('Backend initialized',flush=True)
+ d=wait(lambda d:d.get('ready') and d.get('embedded') and d.get('hero'),'libmpv startup');assert d.get('remember_signin') is False,'fixture configuration must be loaded';print('Backend initialized',flush=True)
  assert d['hero'][0]==0 and abs(d['hero'][2]-d['viewport'][2])<1,'hero must reach both window edges'
  capture('edge-to-edge-preview.png')
  call({'command':'play-fixture','ticks':12_000_000});d=wait(lambda d:d['player_active'] and d['position']>1.25 and d['duration']>0,'embedded playback/resume');action('confirm');wait(lambda d:d['paused'],'pause')

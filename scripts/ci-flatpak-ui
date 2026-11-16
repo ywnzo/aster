@@ -13,11 +13,11 @@ cat > "$artifacts/launch" <<'LAUNCH'
 #!/usr/bin/env bash
 set -euo pipefail
 exec flatpak run --user --filesystem="$ASTER_TEST_SANDBOX_ROOT" \
-  --env=XDG_CONFIG_HOME="$XDG_CONFIG_HOME" --env=XDG_DATA_HOME="$XDG_DATA_HOME" \
+  --env=ASTER_TEST_CONFIG_HOME="$XDG_CONFIG_HOME" --env=ASTER_TEST_DATA_HOME="$XDG_DATA_HOME" \
   --env=ASTER_PREVIEW_DATA="$ASTER_PREVIEW_DATA" --env=ASTER_PREVIEW_ROUTE=detail \
   --env=ASTER_DEV_BRIDGE="$ASTER_DEV_BRIDGE" --env=ASTER_DEV_FIXTURE_SERVER="$ASTER_DEV_FIXTURE_SERVER" \
   --env=ASTER_WINDOW_INACTIVE=1 --env=ASTER_WINDOW_SIZE="$ASTER_WINDOW_SIZE" \
-  --env=LIBGL_ALWAYS_SOFTWARE=1 io.github.ywnzo.Aster "$@"
+  --env=LIBGL_ALWAYS_SOFTWARE=1 --command=sh io.github.ywnzo.Aster -c 'export XDG_CONFIG_HOME="$ASTER_TEST_CONFIG_HOME" XDG_DATA_HOME="$ASTER_TEST_DATA_HOME"; exec /app/bin/aster "$@"' aster "$@"
 LAUNCH
 chmod +x "$artifacts/launch"
 if [[ "${ASTER_TEST_DESKTOP:-virtual}" == host ]]; then
