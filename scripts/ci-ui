@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Isolated desktop for the synthetic embedded-player tests.
+set -euo pipefail
+binary="$(realpath "$1")"
+artifacts="$(realpath -m "$2")"
+mkdir -p "$artifacts"
+export LIBGL_ALWAYS_SOFTWARE=1 WINIT_UNIX_BACKEND=x11 ASTER_WINDOW_INACTIVE=1
+xvfb-run -a -s '-screen 0 1600x1000x24' bash -c '
+  set -euo pipefail
+  openbox --sm-disable > "$2/window-manager.log" 2>&1 &
+  wm_pid=$!
+  trap '\''kill "$wm_pid" 2>/dev/null || true'\'' EXIT
+  for _ in {1..30}; do
+    if xprop -root _NET_SUPPORTING_WM_CHECK | grep -q "window id"; then break; fi
+    sleep .1
+  done
+  xprop -root _NET_SUPPORTING_WM_CHECK | grep -q "window id"
+  python3 tests/embedded_ui.py "$1" "$2"
+' bash "$binary" "$artifacts"

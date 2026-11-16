@@ -1,5 +1,11 @@
 # Release status and remaining product work
 
+## 0.1.0-alpha.29 — complete virtual desktop checks
+
+- Run graphical CI tests with an isolated PulseAudio null sink and an Openbox window manager, exercising audio-track changes, resizing and fullscreen without physical devices.
+- Install an absolute desktop launcher path so KDE sessions without `~/.local/bin` in PATH can launch the app.
+- Includes chapter browsing, whole-app performance fixes and the transparent white-star desktop icon.
+
 ## 0.1.0-alpha.28 — hosted X11 test environment
 
 - Include the X11 keyboard runtime required by winit on headless Linux runners. Cache Rust dependencies and build outputs for subsequent CI runs.

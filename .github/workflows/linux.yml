@@ -29,7 +29,7 @@ jobs:
       - name: Install native dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends pkg-config libudev-dev libmpv-dev mpv ffmpeg xvfb xauth libgl1-mesa-dri libxkbcommon-x11-0 libegl1 librsvg2-bin desktop-file-utils
+          sudo apt-get install -y --no-install-recommends pkg-config libudev-dev libmpv-dev mpv ffmpeg xvfb xauth x11-utils openbox pulseaudio pulseaudio-utils libgl1-mesa-dri libxkbcommon-x11-0 libegl1 librsvg2-bin desktop-file-utils
       - name: Install Rust
         run: |
           rustup toolchain install "$RUST_VERSION" --profile minimal --component rustfmt --component clippy
@@ -71,12 +71,20 @@ jobs:
           desktop-file-validate packaging/aster.desktop
           ASTER_INSTALL_PREFIX="$RUNNER_TEMP/aster-install" scripts/install-local target/release/aster
           test -s "$RUNNER_TEMP/aster-install/share/icons/hicolor/scalable/apps/aster-star.svg"
+          desktop-file-validate "$RUNNER_TEMP/aster-install/share/applications/aster.desktop"
+          grep -Fx 'Exec="'"$RUNNER_TEMP/aster-install/bin/aster"'"' "$RUNNER_TEMP/aster-install/share/applications/aster.desktop"
+      - name: Start isolated virtual audio sink
+        run: |
+          socket="$RUNNER_TEMP/aster-pulse.sock"
+          pulseaudio --daemonize=yes --exit-idle-time=-1 --log-target="file:$RUNNER_TEMP/aster-pulse.log" -n --load="module-native-protocol-unix socket=$socket auth-anonymous=1" --load="module-null-sink sink_name=aster_test"
+          pactl --server="unix:$socket" info
+          echo "PULSE_SERVER=unix:$socket" >> "$GITHUB_ENV"
       - name: Embedded player with decoded previews
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           WINIT_UNIX_BACKEND: x11
           ASTER_WINDOW_INACTIVE: '1'
-        run: xvfb-run -a -s '-screen 0 1600x1000x24' python3 tests/embedded_ui.py "$PWD/target/release/aster" "$RUNNER_TEMP/aster-gpu-decoded"
+        run: scripts/ci-ui "$PWD/target/release/aster" "$RUNNER_TEMP/aster-gpu-decoded"
       - name: Embedded player with server chapters and trickplay
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
@@ -84,7 +92,7 @@ jobs:
           ASTER_WINDOW_INACTIVE: '1'
           ASTER_TEST_TRICKPLAY: '1'
           ASTER_TEST_SERVER_CHAPTERS: '1'
-        run: xvfb-run -a -s '-screen 0 1600x1000x24' python3 tests/embedded_ui.py "$PWD/target/release/aster" "$RUNNER_TEMP/aster-gpu-trickplay"
+        run: scripts/ci-ui "$PWD/target/release/aster" "$RUNNER_TEMP/aster-gpu-trickplay"
       - name: Package and verify checksum
         run: |
           scripts/package target/release/aster
