@@ -30,7 +30,7 @@
       "name": "lua",
       "buildsystem": "simple",
       "build-commands": [
-        "make -j2 linux MYCFLAGS=-fPIC",
+        "make -j2 linux CC=\"cc -fPIC\"",
         "make INSTALL_TOP=/app install",
         "mkdir -p /app/lib/pkgconfig",
         "printf 'prefix=/app\\nlibdir=${prefix}/lib\\nincludedir=${prefix}/include\\nName: Lua\\nDescription: Lua scripting\\nVersion: 5.1.5\\nLibs: -L${libdir} -llua -lm -ldl\\nCflags: -I${includedir}\\n' > /app/lib/pkgconfig/lua51.pc",
