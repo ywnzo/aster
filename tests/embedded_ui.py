@@ -89,8 +89,8 @@ try:
  children=pathlib.Path(f'/proc/{app.pid}/task/{app.pid}/children').read_text().strip();assert os.environ.get('ASTER_TEST_FLATPAK')=='1' or not children,'no external player process is permitted'
  time.sleep(.5)
  idle_before=call({'command':'status'}).get('performance',{}).get('ui_frames',0);time.sleep(.8);idle_after=call({'command':'status'}).get('performance',{}).get('ui_frames',0)
- assert idle_after-idle_before<12,'paused player must not repaint continuously'
- capture('embedded-player.png');print('In-window frame, resume, paused repaint budget, and no child player verified',flush=True)
+ assert idle_after-idle_before<12,'paused player must not repaint continuously: '+json.dumps({'before':idle_before,'after':idle_after,'status':call({'command':'status'})})
+ capture('embedded-player.png');print('In-window frame, resume and paused repaint budget verified'+(' (sandbox launcher)' if os.environ.get('ASTER_TEST_FLATPAK')=='1' else '; no child player verified'),flush=True)
  wait(lambda d:d['player_ui'].get('chapter_count')==3 and d['player_ui'].get('chapter_title')==chapter_names[0],'native or server chapter titles must load')
  assert call({'command':'status'})['player_ui']['chapter_markers']==[10,20],'chapter boundaries must be positioned on the timeline'
  before=call({'command':'status'})['position']

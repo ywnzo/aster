@@ -42,3 +42,5 @@ The package does not request access to your home directory or the whole host fil
 GitHub Actions builds the bundle, then installs it in a separate Ubuntu job. That job exercises the actual sandboxed application with synthetic media, virtual audio and Xvfb/Openbox. The fixture grants access only to its temporary directory; normal launches use the manifest permissions above. Physical controller reconnection and hardware decoding also need testing on the target hardware.
 
 Tagged releases wait for the native checks and Flatpak checks before attaching the archives, bundle and checksums. GPU drivers are supplied by Flatpak's matching graphics extensions and the host kernel; host-specific private libmpv/driver directories are not copied into the bundle.
+
+To exercise a built bundle on an existing desktop, run `ASTER_TEST_DESKTOP=host scripts/ci-flatpak-ui /absolute/path/to/aster.flatpak /tmp/aster-flatpak-ui`. This installs the package for your user and runs only the synthetic fixture.

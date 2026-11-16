@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/aster-mark.svg" width="88" alt="Aster"></p>
+<p align="center"><img src="assets/aster.svg" width="88" alt="Aster"></p>
 <h1 align="center">Aster</h1>
 <p align="center">A Jellyfin client for Linux with controller support.</p>
 <p align="center"><a href="https://github.com/ywnzo/aster/releases">Download</a> · <a href="#controls">Controls</a> · <a href="docs/DEVELOPMENT.md">Development</a> · <a href="https://github.com/ywnzo/aster/issues">Report a bug</a></p>
@@ -18,7 +18,7 @@ Browse movies and shows, resume playback, and watch in the same window. Aster wo
 
 ## Install
 
-Download the Linux x86_64 package from [Releases](https://github.com/ywnzo/aster/releases). A Jellyfin server is required; Aster does not provide media or a server.
+Download the Linux x86_64 package from [Releases](https://github.com/ywnzo/aster/releases). A Jellyfin server is required; Aster does not provide media or a server. Replace `VERSION` in the commands below with the downloaded version.
 
 ### Flatpak
 

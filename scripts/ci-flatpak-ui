@@ -6,7 +6,7 @@ bundle="$(realpath "$1")"
 artifacts="$(realpath -m "$2")"
 mkdir -p "$artifacts"
 flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-flatpak --user install --noninteractive -y "$bundle"
+flatpak --user install --reinstall --noninteractive -y "$bundle"
 flatpak run --user io.github.ywnzo.Aster --version
 export ASTER_TEST_SANDBOX_ROOT="$artifacts" ASTER_TEST_FLATPAK=1
 cat > "$artifacts/launch" <<'LAUNCH'
@@ -20,4 +20,8 @@ exec flatpak run --user --filesystem="$ASTER_TEST_SANDBOX_ROOT" \
   --env=LIBGL_ALWAYS_SOFTWARE=1 io.github.ywnzo.Aster "$@"
 LAUNCH
 chmod +x "$artifacts/launch"
-scripts/ci-ui "$artifacts/launch" "$artifacts"
+if [[ "${ASTER_TEST_DESKTOP:-virtual}" == host ]]; then
+  python3 tests/embedded_ui.py "$artifacts/launch" "$artifacts"
+else
+  scripts/ci-ui "$artifacts/launch" "$artifacts"
+fi
