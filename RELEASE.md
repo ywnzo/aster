@@ -1,5 +1,10 @@
 # Release status and remaining product work
 
+## 0.1.0-alpha.31 — Bigscreen input in Flatpak
+
+- Detect Bigscreen input through the GLib D-Bus client included in the runtime, retaining duplicate-input filtering without requiring Qt tools in the sandbox.
+- Permit the specific Bigscreen service on the session bus. Keep native settings and user files outside the sandbox.
+
 ## 0.1.0-alpha.30 — Flatpak packaging
 
 - Add a source-built Flatpak bundle with libmpv, Lua playback controls and keyring support. Export the white star icon under the Flatpak application ID.

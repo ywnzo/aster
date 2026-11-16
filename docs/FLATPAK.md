@@ -33,6 +33,7 @@ When Cargo.lock changes, run `scripts/flatpak-cargo-sources` and commit the upda
 - PulseAudio: audio output through PulseAudio or PipeWire's PulseAudio service.
 - DRI: GPU rendering and hardware video decoding.
 - Input devices and read-only `/run/udev`: detect and use controllers, including reconnects.
+- Bigscreen input-service D-Bus: detect its presence to filter mirrored controller key events. Aster does not change the service.
 - Secret Service D-Bus: save sign-in to the desktop keyring through the bundled `secret-tool`.
 
 The package does not request access to your home directory or the whole host filesystem. It stores its own settings/data under `~/.var/app/io.github.ywnzo.Aster/`. Native settings and sign-in are not automatically imported; sign in once in the Flatpak. Choose private-file storage in Settings only if you prefer it to the keyring.

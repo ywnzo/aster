@@ -16,7 +16,8 @@
     "--device=dri",
     "--device=input",
     "--filesystem=/run/udev:ro",
-    "--talk-name=org.freedesktop.secrets"
+    "--talk-name=org.freedesktop.secrets",
+    "--talk-name=org.kde.plasma.bigscreen.inputhandler"
   ],
   "cleanup": [
     "/include",

@@ -153,15 +153,7 @@ impl Input {
         std::thread::spawn(move || {
             // Bigscreen synthesizes arrows/Return/Escape for the same gamepad
             // that gilrs reads directly. Detect its service without changing it.
-            let bigscreen = std::process::Command::new("qdbus6")
-                .args([
-                    "org.kde.plasma.bigscreen.inputhandler",
-                    "/InputHandler",
-                    "org.kde.plasma.bigscreen.inputhandler.inputSuppressed",
-                ])
-                .stderr(std::process::Stdio::null())
-                .output()
-                .is_ok_and(|o| o.status.success());
+            let bigscreen = bigscreen_input_available();
             let mut raw = RawInput::new();
             let mut previous = None;
             let mut was_focused = false;
@@ -241,6 +233,40 @@ impl Input {
 impl Drop for Input {
     fn drop(&mut self) {
         self.stop.store(true, std::sync::atomic::Ordering::Relaxed);
+    }
+}
+// GLib's client is available in the Flatpak runtime; Qt's qdbus6 is not.
+// Ask the bus about the owner without changing the Bigscreen input service.
+fn bigscreen_input_available() -> bool {
+    let query = std::process::Command::new("gdbus")
+        .args([
+            "call",
+            "--session",
+            "--timeout",
+            "2",
+            "--dest",
+            "org.freedesktop.DBus",
+            "--object-path",
+            "/org/freedesktop/DBus",
+            "--method",
+            "org.freedesktop.DBus.NameHasOwner",
+            "org.kde.plasma.bigscreen.inputhandler",
+        ])
+        .stderr(std::process::Stdio::null())
+        .output();
+    match query {
+        Ok(output) => {
+            output.status.success() && String::from_utf8_lossy(&output.stdout).trim() == "(true,)"
+        }
+        Err(_) => std::process::Command::new("qdbus6")
+            .args([
+                "org.kde.plasma.bigscreen.inputhandler",
+                "/InputHandler",
+                "org.kde.plasma.bigscreen.inputhandler.inputSuppressed",
+            ])
+            .stderr(std::process::Stdio::null())
+            .output()
+            .is_ok_and(|output| output.status.success()),
     }
 }
 pub fn playback_command(action: Action) -> serde_json::Value {

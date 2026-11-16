@@ -21,6 +21,6 @@
   <url type="bugtracker">https://github.com/ywnzo/aster/issues</url>
   <url type="vcs-browser">https://github.com/ywnzo/aster</url>
   <content_rating type="oars-1.1"/>
-  <releases><release version="0.1.0-alpha.30" date="2026-11-16" type="development"/></releases>
+  <releases><release version="0.1.0-alpha.31" date="2026-11-16" type="development"/></releases>
   <provides><binary>aster</binary></provides>
 </component>
